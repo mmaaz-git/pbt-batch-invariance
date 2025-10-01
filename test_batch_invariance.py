@@ -196,13 +196,11 @@ def attn_strategy(
 
     return Q, K, V, m, n
 
-
 def attn_batched(Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor) -> torch.Tensor:
     """
     Standard batched attention.
     """
     return F.scaled_dot_product_attention(Q, K, V)
-
 
 def attn_rowwise(Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor) -> torch.Tensor:
     """
