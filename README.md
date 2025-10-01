@@ -1,0 +1,3 @@
+# Property-based testing of batch-invariant operations
+
+Recently, a Thinking Machines blog post discussed why [nondeterminism in LLMs is a problem](https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/). The blog argues that batch-invariance in matrix multiplication, RMSNorm, and attention is crucial for deterministic inference. In their [repo](https://github.com/thinking-machines-lab/batch_invariant_ops), the `test_batch_invariance.py` script implements property-based testing of batch-invariant operations.
