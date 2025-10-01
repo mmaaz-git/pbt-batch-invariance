@@ -1,0 +1,4 @@
+hypothesis>=6
+torch>=2
+pytest>=8
+numpy>=2
