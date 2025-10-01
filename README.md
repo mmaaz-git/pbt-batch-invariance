@@ -49,3 +49,9 @@ test_batch_invariance.py::test_attn[attn_rowwise] PASSED
 ```
 Here, on the GPU version, all `_batched` versions failed, and all the `_rowwise` versions passed. As the original blog post argues, the way that GPU kernels handle batching causes nondeterminism.
 
+## Conclusion
+
+We used property-based testing to rigorously test the batch-invariance of matrix multiplication, RMSNorm, and attention. As expected, the default implementations fail batch-invariance, but the batch-invariant versions pass.
+
+For more details, see the blog post: [Property-based testing of batch-invariant operations](https://mmaaz.ca/writings/batch-invariance.html).
+
