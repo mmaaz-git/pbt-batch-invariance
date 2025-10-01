@@ -1,0 +1,127 @@
+================================================= test session starts ==================================================
+platform darwin -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0 -- /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13
+cachedir: .pytest_cache
+Test order randomisation NOT enabled. Enable with --random-order or --random-order-bucket=<bucket_type>
+metadata: {'Python': '3.13.5', 'Platform': 'macOS-14.3-arm64-arm-64bit-Mach-O', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.9.0', 'asyncio': '1.1.0', 'xdist': '3.8.0', 'json-report': '1.5.0', 'random-order': '1.2.0', 'metadata': '3.1.1', 'hypothesis': '6.136.7', 'localserver': '0.9.0.post0', 'cov': '6.2.1'}}
+hypothesis profile 'default'
+rootdir: /Users/maaz/Documents/Software projects/pbt-batch-invariance
+plugins: anyio-4.9.0, asyncio-1.1.0, xdist-3.8.0, json-report-1.5.0, random-order-1.2.0, metadata-3.1.1, hypothesis-6.136.7, localserver-0.9.0.post0, cov-6.2.1
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 6 items
+
+test_batch_invariance.py::test_matmul[matmul_batched] FAILED                                                     [ 16%]
+test_batch_invariance.py::test_matmul[matmul_rowwise] PASSED                                                     [ 33%]
+test_batch_invariance.py::test_rmsnorm[rmsnorm_batched] PASSED                                                   [ 50%]
+test_batch_invariance.py::test_rmsnorm[rmsnorm_rowwise] PASSED                                                   [ 66%]
+test_batch_invariance.py::test_attn[attn_batched] PASSED                                                         [ 83%]
+test_batch_invariance.py::test_attn[attn_rowwise] PASSED                                                         [100%]
+
+======================================================= FAILURES =======================================================
+_____________________________________________ test_matmul[matmul_batched] ______________________________________________
+
+matmul_fn = <function matmul_batched at 0x157c3e980>
+
+    @pytest.mark.parametrize("matmul_fn", [matmul_batched, matmul_rowwise])
+>   @given(inputs=matmul_strategy())
+                   ^^^^^^^^^^^^
+
+test_batch_invariance.py:65:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+inputs = (tensor([[1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+        [1., 1., 1., 1., 1., 1., 1....19209289600000005e-07],
+        [1.19209289600000005e-07, 1.19209289600000005e-07]],
+       dtype=torch.float64), 0, 1)
+matmul_fn = <function matmul_batched at 0x157c3e980>
+
+    @pytest.mark.parametrize("matmul_fn", [matmul_batched, matmul_rowwise])
+    @given(inputs=matmul_strategy())
+    @settings(deadline=None, max_examples=1000)
+    def test_matmul(inputs, matmul_fn):
+        a, b, m, n = inputs
+
+        # Property: slicing before vs after batch matmul yields same first row
+        out1 = matmul_fn(a[m:n], b)    # (n-m,D) @ (D,N) -> (n-m,N)
+        out2 = matmul_fn(a, b)[m:n]    # (B,D) @ (D,N) -> (B,N) then slice -> (n-m,N)
+
+        diff = torch.abs(out1 - out2).max()
+
+        # guard against nan, inf, etc.
+        assume(torch.isfinite(diff))
+
+        diff = diff.item()
+        torch.set_printoptions(precision=17)
+        note(f"diff: {diff}\nout1: {out1}\nout2: {out2}")
+
+        # assert diff
+>       assert diff == 0
+E       assert 4.235164736271502e-22 == 0
+E       Falsifying example: test_matmul(
+E           matmul_fn=matmul_batched,
+E           inputs=(tensor([[1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+E                    [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]],
+E                   dtype=torch.float64),
+E            tensor([[1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07],
+E                    [1.19209289600000005e-07, 1.19209289600000005e-07]],
+E                   dtype=torch.float64),
+E            0,
+E            1),
+E       )
+E       diff: 4.235164736271502e-22
+E       out1: tensor([[2.14576721280000009e-06, 2.14576721280000009e-06]],
+E              dtype=torch.float64)
+E       out2: tensor([[2.14576721279999967e-06, 2.14576721279999967e-06]],
+E              dtype=torch.float64)
+
+test_batch_invariance.py:84: AssertionError
+=============================================== short test summary info ================================================
+FAILED test_batch_invariance.py::test_matmul[matmul_batched] - assert 4.235164736271502e-22 == 0
+Falsifying example: test_matmul(
+    matmul_fn=matmul_batched,
+    inputs=(tensor([[1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+             [1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]],
+            dtype=torch.float64),
+     tensor([[1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07],
+             [1.19209289600000005e-07, 1.19209289600000005e-07]],
+            dtype=torch.float64),
+     0,
+     1),
+)
+diff: 4.235164736271502e-22
+out1: tensor([[2.14576721280000009e-06, 2.14576721280000009e-06]],
+       dtype=torch.float64)
+out2: tensor([[2.14576721279999967e-06, 2.14576721279999967e-06]],
+       dtype=torch.float64)
+======================================= 1 failed, 5 passed in 338.05s (0:05:38) ========================================
