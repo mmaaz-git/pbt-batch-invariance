@@ -1,5 +1,5 @@
 # uncomment if running a notebook
-#%%writefile batch_invariance.py
+#%%writefile test_batch_invariance.py
 
 import numpy as np
 from hypothesis import given, settings, assume, note, strategies as st
@@ -239,5 +239,3 @@ def test_attn(inputs, attn_fn):
 
     # assert diff
     assert diff == 0
-
-#!pytest batch_invariance.py -v
